@@ -99,8 +99,9 @@ class Trainer(BaseTrainer):
         upos_seqs = [self.vocab['upos'].unmap(sent) for sent in preds[0].tolist()]
         xpos_seqs = [self.vocab['xpos'].unmap(sent) for sent in preds[1].tolist()]
         feats_seqs = [self.vocab['feats'].unmap(sent) for sent in preds[2].tolist()]
+        upos_probs = preds[3].tolist()
 
-        pred_tokens = [[[upos_seqs[i][j], xpos_seqs[i][j], feats_seqs[i][j]] for j in range(sentlens[i])] for i in range(batch_size)]
+        pred_tokens = [[[upos_seqs[i][j], xpos_seqs[i][j], feats_seqs[i][j], upos_probs[i][j]] for j in range(sentlens[i])] for i in range(batch_size)]
         if unsort:
             pred_tokens = utils.unsort(pred_tokens, orig_idx)
         return pred_tokens

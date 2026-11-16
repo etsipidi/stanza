@@ -85,5 +85,5 @@ class POSProcessor(UDProcessor):
                 preds += self.trainer.predict(b)
 
         preds = unsort(preds, idx)
-        dataset.doc.set([doc.UPOS, doc.XPOS, doc.FEATS], [y for x in preds for y in x])
+        dataset.doc.set([doc.UPOS, doc.XPOS, doc.FEATS, 'upos_prob'],[y for x in preds for y in x])
         return dataset.doc

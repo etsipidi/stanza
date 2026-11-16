@@ -199,6 +199,9 @@ class Tagger(nn.Module):
         upos_pred = self.upos_clf(self.drop(upos_hid))
 
         preds = [pad(upos_pred).max(2)[1]]
+        # probability of the best UPOS tag for each word, appended as preds[3]
+        upos_prob = pad(F.softmax(upos_pred, dim=-1)).max(2)[0]
+
 
         if upos is not None:
             upos = pack(upos).data
@@ -245,5 +248,6 @@ class Tagger(nn.Module):
                 loss += self.crit(ufeats_pred.view(-1, ufeats_pred.size(-1)), ufeats[:, i].view(-1))
             ufeats_preds.append(pad(ufeats_pred).max(2, keepdim=True)[1])
         preds.append(torch.cat(ufeats_preds, 2))
+        preds.append(upos_prob)
 
         return loss, preds
