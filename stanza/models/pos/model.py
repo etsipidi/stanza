@@ -252,5 +252,12 @@ class Tagger(nn.Module):
                 loss += self.crit(ufeats_pred.view(-1, ufeats_pred.size(-1)), ufeats[:, i].view(-1))
             ufeats_preds.append(pad(ufeats_pred).max(2, keepdim=True)[1])
         preds.append(torch.cat(ufeats_preds, 2))
+        if not self.training:
+            preds.append(F.softmax(pad(upos_pred), dim=2).max(2)[0])
+            if isinstance(self.vocab['xpos'], CompositeVocab):
+                xpos_logprob = sum(F.log_softmax(pad(clffunc(clf, xpos_hid)), dim=2).max(2)[0] for clf in self.xpos_clf)
+                preds.append(xpos_logprob.exp())
+            else:
+                preds.append(F.softmax(pad(xpos_pred), dim=2).max(2)[0])
 
         return loss, preds

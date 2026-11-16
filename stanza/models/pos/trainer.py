@@ -88,7 +88,7 @@ class Trainer(BaseTrainer):
             scheduler.step()
         return loss_val
 
-    def predict(self, batch, unsort=True):
+    def predict(self, batch, unsort=True, return_probs=False):
         device = next(self.model.parameters()).device
         inputs, orig_idx, word_orig_idx, sentlens, wordlens, text = unpack_batch(batch, device)
         word, word_mask, wordchars, wordchars_mask, upos, xpos, ufeats, pretrained = inputs
@@ -101,6 +101,9 @@ class Trainer(BaseTrainer):
         feats_seqs = [self.vocab['feats'].unmap(sent) for sent in preds[2].tolist()]
 
         pred_tokens = [[[upos_seqs[i][j], xpos_seqs[i][j], feats_seqs[i][j]] for j in range(sentlens[i])] for i in range(batch_size)]
+        if return_probs:
+            upos_probs, xpos_probs = preds[3].tolist(), preds[4].tolist()
+            pred_tokens = [[tok + [upos_probs[i][j], xpos_probs[i][j]] for j, tok in enumerate(sent)] for i, sent in enumerate(pred_tokens)]
         if unsort:
             pred_tokens = utils.unsort(pred_tokens, orig_idx)
         return pred_tokens

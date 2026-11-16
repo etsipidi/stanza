@@ -32,7 +32,9 @@ ID = 'id'
 TEXT = 'text'
 LEMMA = 'lemma'
 UPOS = 'upos'
+UPOS_PROB = 'upos_prob'
 XPOS = 'xpos'
+XPOS_PROB = 'xpos_prob'
 FEATS = 'feats'
 HEAD = 'head'
 DEPREL = 'deprel'
@@ -1312,7 +1314,9 @@ class Word(StanzaObject):
 
         self._lemma = word_entry.get(LEMMA, None)
         self._upos = word_entry.get(UPOS, None)
+        self._upos_prob = word_entry.get(UPOS_PROB, None)
         self._xpos = word_entry.get(XPOS, None)
+        self._xpos_prob = word_entry.get(XPOS_PROB, None)
         self._feats = word_entry.get(FEATS, None)
         self._head = word_entry.get(HEAD, None)
         self._deprel = word_entry.get(DEPREL, None)
@@ -1382,6 +1386,15 @@ class Word(StanzaObject):
         self._upos = value if self._is_null(value) == False else None
 
     @property
+    def upos_prob(self):
+        """Softmax probability assigned to the selected UPOS tag."""
+        return self._upos_prob
+
+    @upos_prob.setter
+    def upos_prob(self, value):
+        self._upos_prob = None if value is None else float(value)
+
+    @property
     def xpos(self):
         """ Access the treebank-specific part-of-speech of this word. Example: 'NNP'"""
         return self._xpos
@@ -1390,6 +1403,20 @@ class Word(StanzaObject):
     def xpos(self, value):
         """ Set the word's treebank-specific part-of-speech value. Example: 'NNP'"""
         self._xpos = value if self._is_null(value) == False else None
+
+    @property
+    def xpos_prob(self):
+        """
+        Softmax probability assigned to the selected XPOS tag.
+
+        For composite XPOS tags, this is the product of the probabilities
+        assigned to the selected component tags.
+        """
+        return self._xpos_prob
+
+    @xpos_prob.setter
+    def xpos_prob(self, value):
+        self._xpos_prob = None if value is None else float(value)
 
     @property
     def feats(self):
@@ -1573,7 +1600,7 @@ class Word(StanzaObject):
         token_dict = self.to_dict()
         return dict_to_conll_text(token_dict, '.')
 
-    def to_dict(self, fields=[ID, TEXT, LEMMA, UPOS, XPOS, FEATS, HEAD, DEPREL, DEPS, MISC, START_CHAR, END_CHAR, MEXP, COREF_CHAINS]):
+    def to_dict(self, fields=[ID, TEXT, LEMMA, UPOS, UPOS_PROB, XPOS, XPOS_PROB, FEATS, HEAD, DEPREL, DEPS, MISC, START_CHAR, END_CHAR, MEXP, COREF_CHAINS]):
         """ Dumps the word into a dictionary.
         """
         word_dict = {}

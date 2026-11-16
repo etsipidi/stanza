@@ -82,8 +82,8 @@ class POSProcessor(UDProcessor):
                 batch = tqdm(batch)
             for i, b in enumerate(batch):
                 idx.extend(b[-1])
-                preds += self.trainer.predict(b)
+                preds += self.trainer.predict(b, return_probs=True)
 
         preds = unsort(preds, idx)
-        dataset.doc.set([doc.UPOS, doc.XPOS, doc.FEATS], [y for x in preds for y in x])
+        dataset.doc.set([doc.UPOS, doc.XPOS, doc.FEATS, doc.UPOS_PROB, doc.XPOS_PROB], [y for x in preds for y in x])
         return dataset.doc
